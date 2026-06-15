@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"snowden/config"
 
@@ -15,9 +16,8 @@ func (s *Server) Run() {
 	router.HandleFunc("/api/v1/vulnerability/cve", config.LogHandler(makeHTTPHandleFunc(ReadVulnerabilityByCve))).Methods("GET")
 	router.HandleFunc("/api/v1/vulnerability/cwe", config.LogHandler(makeHTTPHandleFunc(ReadVulnerabilityByCwe))).Methods("GET")
 
-	err := http.ListenAndServe(s.Port, router)
-	if err != nil {
-		return
+	if err := http.ListenAndServe(s.Port, router); err != nil {
+		log.Fatal("server failed: ", err)
 	}
 }
 

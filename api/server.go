@@ -2,8 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
+	"snowden/client"
 	"snowden/config"
 
 	"github.com/gorilla/mux"
@@ -37,10 +39,14 @@ func WriteJson(w http.ResponseWriter, status int, value any) error {
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
-			err := WriteJson(w, http.StatusBadRequest, Error{Error: err.Error()})
-			if err != nil {
-				return
+			status := http.StatusInternalServerError
+
+			var apiErr *client.APIError
+			if errors.As(err, &apiErr) {
+				status = apiErr.Status
 			}
+
+			_ = WriteJson(w, status, Error{Error: err.Error()})
 		}
 	}
 }

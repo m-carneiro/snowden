@@ -2,19 +2,23 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"snowden/api"
 	"snowden/config"
 )
 
-const (
-	Port = ":80"
-)
+const DefaultPort = ":80"
 
 func main() {
 	config.LoadEnv()
 
-	server := api.NewApiServer(Port)
-	fmt.Println("Starting server on port", Port)
+	port := DefaultPort
+	if p := os.Getenv("PORT"); p != "" {
+		port = p
+	}
+
+	server := api.NewApiServer(port)
+	fmt.Println("Starting server on port", port)
 
 	server.Run()
 }
